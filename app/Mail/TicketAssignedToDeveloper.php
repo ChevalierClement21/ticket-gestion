@@ -10,12 +10,10 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TicketCreatedMail extends Mailable
+class TicketAssignedToDeveloper extends Mailable
 {
     use Queueable, SerializesModels;
-
-    protected $ticket;
-
+    public $ticket;
     /**
      * Create a new message instance.
      */
@@ -30,7 +28,7 @@ class TicketCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Nouveau ticket crée',
+            subject: 'Ticket Assigné : '.$this->ticket->title,
         );
     }
 
@@ -40,10 +38,7 @@ class TicketCreatedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.ticketCreated',
-            with: [
-                'ticket' => $this->ticket
-            ],
+            view: 'emails.ticket_assigned',
         );
     }
 

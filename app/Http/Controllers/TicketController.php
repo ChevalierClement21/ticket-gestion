@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TicketAssignedToDeveloper;
+use App\Mail\TicketCreatedMail;
 use App\Models\Categorie;
 use App\Models\Priorite;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Silber\Bouncer\BouncerFacade as Bouncer;
 use App\Models\User;
 
@@ -63,6 +66,14 @@ class TicketController extends Controller
         $ticket->categorie_id = $request->categorie_id;
 
         $ticket->save();
+
+        $admins = User::whereHas('roles', function($query) {
+            $query->where('name', 'admin');
+        })->get();
+
+        foreach ($admins as $admin) {
+            Mail::to($admin->email)->send(new TicketCreatedMail($ticket));
+        }
 
         return redirect()->route('tickets.index')->with('success', 'Ticket créé avec succès.');
     }
@@ -131,6 +142,9 @@ class TicketController extends Controller
         $ticket->developer_id = $request->developer_id;
         $ticket->status = "Affecté";
         $ticket->save();
+
+        $developer = User::find($request->developer_id);
+         Mail::to($developer->email)->send(new TicketAssignedToDeveloper($ticket));
 
         return redirect()->route('tickets.index')->with('success', 'Développeur assigné et statut mis à jour.');
     }

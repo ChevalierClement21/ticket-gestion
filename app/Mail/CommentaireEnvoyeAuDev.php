@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Commentaire;
 use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,17 +11,19 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TicketCreatedMail extends Mailable
+class CommentaireEnvoyeAuDev extends Mailable
 {
     use Queueable, SerializesModels;
 
-    protected $ticket;
+    public $ticket;
+    public $commentaire;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Ticket $ticket)
+    public function __construct(Ticket $ticket, Commentaire $commentaire)
     {
+        $this->commentaire = $commentaire;
         $this->ticket = $ticket;
     }
 
@@ -30,7 +33,7 @@ class TicketCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Nouveau ticket crée',
+            subject: 'Un nouveau commentaire sur votre ticket : '.$this->ticket->title,
         );
     }
 
@@ -40,10 +43,7 @@ class TicketCreatedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.ticketCreated',
-            with: [
-                'ticket' => $this->ticket
-            ],
+            view: 'emails.commentaire_envoye_au_dev',
         );
     }
 

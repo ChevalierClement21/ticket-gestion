@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\CommentaireEnvoyeAuClient;
+use App\Mail\CommentaireEnvoyeAuDev;
 use App\Models\Commentaire;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class CommentaireController extends Controller
 {
@@ -40,6 +43,20 @@ class CommentaireController extends Controller
         $commentaire->user_id = auth()->user()->id;
         $commentaire->ticket_id = $ticket->id;
         $commentaire->save();
+
+        if (auth()->user()->isA('developer')) {
+            if ($ticket->user_id) {
+                $client = User::find($ticket->user_id);
+                Mail::to($client->email)->send(new CommentaireEnvoyeAuClient($ticket, $commentaire));
+            }
+        }
+
+        if ($ticket->developer_id) {
+            $developer = User::find($ticket->developer_id);
+            if ($developer->id !== auth()->user()->id) {
+                Mail::to($developer->email)->send(new CommentaireEnvoyeAuDev($ticket, $commentaire));
+            }
+        }
         return redirect()->route('tickets.show', $ticket)->with('success', 'Commentaire ajouté avec succès.');
 
     }
