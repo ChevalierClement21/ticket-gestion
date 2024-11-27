@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -27,4 +27,14 @@ class Categorie extends Model
     protected $fillable = [
         'name'
     ];
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class);
+    }
+
+    // Relation avec l'utilisateur
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

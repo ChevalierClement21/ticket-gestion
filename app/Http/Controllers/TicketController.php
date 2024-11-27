@@ -17,7 +17,6 @@ class TicketController extends Controller
      */
 
     public function index(){
-        //$user = auth()->user();
 
         if (auth()->user()->isA('admin')) {
             $tickets = Ticket::all();
@@ -25,9 +24,8 @@ class TicketController extends Controller
         elseif (auth()->user()->isA('client')) {
             $tickets = Ticket::where('user_id', auth()->user()->id)->get();
         }
-        // Si l'utilisateur est un développeur
         elseif (auth()->user()->isA('developer')) {
-            $tickets = Ticket::where('developer_id', auth()->user()->id)->get();
+            $tickets = Ticket::where('developer_id', auth()->user()->id)->whereNotIn('status', ['Annulé', 'Résolu'])->get();
         }
 
         return view('tickets.index', compact('tickets'));
@@ -74,7 +72,13 @@ class TicketController extends Controller
      */
     public function show(Ticket $ticket)
     {
-        return view('tickets.show', compact('ticket'));
+        $developers = User::whereHas('roles', function($query) {
+            $query->where('name', 'developer');
+        })->get();
+        $comments = $ticket->commentaires()->with('user')->get();
+
+
+        return view('tickets.show', compact('ticket','developers','comments'));
     }
 
     /**
@@ -117,4 +121,43 @@ class TicketController extends Controller
         $ticket->delete();
         return redirect()->route('tickets.index')->with('success', 'Ticket supprimé avec succès.');
     }
+    public function assignDeveloper(Request $request, Ticket $ticket)
+    {
+        // Valider les entrées
+        $request->validate([
+            'developer_id' => 'required|exists:users,id',
+        ]);
+
+        $ticket->developer_id = $request->developer_id;
+        $ticket->status = "Affecté";
+        $ticket->save();
+
+        return redirect()->route('tickets.index')->with('success', 'Développeur assigné et statut mis à jour.');
+    }
+
+    public function cancel(Ticket $ticket)
+    {
+        if (auth()->user()->id === $ticket->user_id && $ticket->status !== 'Résolu') {
+            $ticket->status = 'Annulé';
+            $ticket->save();
+
+            return redirect()->route('tickets.index')->with('success', 'Le ticket a été annulé avec succès.');
+        }
+
+        return redirect()->back()->with('error', 'Action non autorisée.');
+    }
+
+    public function resolve(Ticket $ticket)
+    {
+        if (auth()->user()->id === $ticket->user_id && $ticket->status === 'Affecté') {
+            $ticket->status = 'Résolu';
+            $ticket->save();
+
+            return redirect()->route('tickets.index')->with('success', 'Le ticket a été marqué comme résolu.');
+        }
+
+        return redirect()->back()->with('error', 'Action non autorisée.');
+    }
+
+
 }

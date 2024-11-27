@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $user_id
@@ -58,7 +58,7 @@ class Ticket extends Model
         return $this->belongsTo(Priorite::class,'priorite_id');
     }
 
-    public function commentaire() {
+    public function commentaires() {
         return $this->hasMany(Commentaire::class);
     }
 
