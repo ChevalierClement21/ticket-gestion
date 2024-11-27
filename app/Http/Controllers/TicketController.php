@@ -6,16 +6,32 @@ use App\Models\Categorie;
 use App\Models\Priorite;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Silber\Bouncer\BouncerFacade as Bouncer;
+use App\Models\User;
 
 class TicketController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $tickets = Ticket::all();
+
+    public function index(){
+        //$user = auth()->user();
+
+        if (auth()->user()->isA('admin')) {
+            $tickets = Ticket::all();
+        }
+        elseif (auth()->user()->isA('client')) {
+            $tickets = Ticket::where('user_id', auth()->user()->id)->get();
+        }
+        // Si l'utilisateur est un développeur
+        elseif (auth()->user()->isA('developer')) {
+            $tickets = Ticket::where('developer_id', auth()->user()->id)->get();
+        }
+
         return view('tickets.index', compact('tickets'));
+
     }
 
     /**

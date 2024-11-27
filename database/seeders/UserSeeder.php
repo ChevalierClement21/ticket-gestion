@@ -20,6 +20,18 @@ class UserSeeder extends Seeder
             'password' => Hash::make('adminadmin'),
         ]);
 
+        $dev = User::create([
+            'name' => 'Dev',
+            'email' => 'dev@gmail.com',
+            'password' => Hash::make('devdev'),
+        ]);
+
+        $userTest = User::create([
+            'name' => 'UserUser',
+            'email' => 'user@gmail.com',
+            'password' => Hash::make('useruser'),
+        ]);
+
         $user = User::factory(10)->create();
 
     }
