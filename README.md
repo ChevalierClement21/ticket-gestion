@@ -18,3 +18,18 @@ Pour cela, voici un déroulé type d'interaction
 ❌et une pièce jointe de manière facultative.
 
 ✅Le client une fois le ticket résolu peut passer le ticket au statut "Terminé". Il a aussi la possibilité de l'annuler, le ticket passera au statut "Annulé"
+
+
+users préfait:
+
+email:admin@gmail.com
+mdp:adminamdin
+rôle:admin
+
+email:user@gmail.com
+mdp:useruser
+rôle:client
+
+email:dev@gmail.com
+mdp:devdev
+rôle:developer
